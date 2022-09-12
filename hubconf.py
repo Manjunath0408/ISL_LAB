@@ -25,6 +25,8 @@ classes = [
 ]
 
 # Define model
+
+
 class NeuralNetwork(nn.Module):
     def __init__(self):
         super(NeuralNetwork, self).__init__()
@@ -44,6 +46,7 @@ class NeuralNetwork(nn.Module):
 
 #############################
 
+
 def load_data():
 
     # Download training data from open datasets.
@@ -61,10 +64,11 @@ def load_data():
         download=True,
         transform=ToTensor(),
     )
-    
+
     return training_data, test_data
 
 #############################
+
 
 def create_dataloaders(training_data, test_data, batch_size=64):
 
@@ -76,16 +80,20 @@ def create_dataloaders(training_data, test_data, batch_size=64):
         print(f"Shape of X [N, C, H, W]: {X.shape}")
         print(f"Shape of y: {y.shape} {y.dtype}")
         break
-        
+
     return train_dataloader, test_dataloader
-  
+
 #############################
 
+
 def get_model():
-    
+
     model = NeuralNetwork().to(device)
 
     return model
+
+
+model = get_model()
 
 
 def _train(dataloader, model, loss_fn=loss_fn, optimizer=optimizer):
@@ -106,7 +114,8 @@ def _train(dataloader, model, loss_fn=loss_fn, optimizer=optimizer):
         if batch % 100 == 0:
             loss, current = loss.item(), batch * len(X)
             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
-            
+
+
 def _test(dataloader, model, loss_fn=loss_fn):
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
@@ -120,18 +129,22 @@ def _test(dataloader, model, loss_fn=loss_fn):
             correct += (pred.argmax(1) == y).type(torch.float).sum().item()
     test_loss /= num_batches
     correct /= size
-    print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
-    
+    print(
+        f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+
+
 def train(train_dataloader, test_dataloader, epochs=5):
     for t in range(epochs):
         print(f"Epoch {t+1}\n-------------------------------")
         train(train_dataloader, model, loss_fn, optimizer)
-        test(test_dataloader, model, loss_fn)
+        _test(test_dataloader, model, loss_fn)
     print("Done!")
+
 
 def save_model(mypath="model.pth"):
     torch.save(model.state_dict(), "model.pth")
     print("Saved PyTorch Model State to model.pth")
+
 
 def load_model(mypath="model.pth"):
     model = NeuralNetwork()
@@ -145,6 +158,3 @@ def sample_test(model, test_data):
         pred = model(x)
         predicted, actual = classes[pred[0].argmax(0)], classes[y]
         print(f'Predicted: "{predicted}", Actual: "{actual}"')
-        
-        
-        
