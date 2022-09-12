@@ -8,9 +8,6 @@ from torchvision.transforms import ToTensor
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Using {device} device")
 
-loss_fn = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
-
 classes = [
     "T-shirt/top",
     "Trouser",
@@ -45,6 +42,12 @@ class NeuralNetwork(nn.Module):
         return logits
 
 #############################
+
+
+def get_lossfn_and_optimizer(mymodel):
+    loss_fn = nn.CrossEntropyLoss()
+    optimizer = torch.optim.SGD(mymodel.parameters(), lr=1e-3)
+    return loss_fn, optimizer
 
 
 def load_data():
@@ -93,10 +96,7 @@ def get_model():
     return model
 
 
-model = get_model()
-
-
-def _train(dataloader, model, loss_fn=loss_fn, optimizer=optimizer):
+def _train(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
     model.train()
     for batch, (X, y) in enumerate(dataloader):
@@ -116,7 +116,7 @@ def _train(dataloader, model, loss_fn=loss_fn, optimizer=optimizer):
             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
 
 
-def _test(dataloader, model, loss_fn=loss_fn):
+def _test(dataloader, model, loss_fn):
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
     model.eval()
@@ -133,28 +133,30 @@ def _test(dataloader, model, loss_fn=loss_fn):
         f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
 
 
-def train(train_dataloader, test_dataloader, epochs=5):
+def train(train_dataloader, test_dataloader, model1, loss_fn1, optimizer1, epochs=5):
     for t in range(epochs):
         print(f"Epoch {t+1}\n-------------------------------")
-        train(train_dataloader, model, loss_fn, optimizer)
-        _test(test_dataloader, model, loss_fn)
+        _train(train_dataloader, model1, loss_fn1, optimizer1)
+        _test(test_dataloader, model1, loss_fn1)
     print("Done!")
+    return model1
 
 
-def save_model(mypath="model.pth"):
-    torch.save(model.state_dict(), "model.pth")
+def save_model(model1, mypath="model.pth"):
+    torch.save(model1.state_dict(), "model.pth")
     print("Saved PyTorch Model State to model.pth")
 
 
 def load_model(mypath="model.pth"):
     model = NeuralNetwork()
     model.load_state_dict(torch.load("model.pth"))
+    return model
 
 
-def sample_test(model, test_data):
-    model.eval()
+def sample_test(model1, test_data):
+    model1.eval()
     x, y = test_data[0][0], test_data[0][1]
     with torch.no_grad():
-        pred = model(x)
+        pred = model1(x)
         predicted, actual = classes[pred[0].argmax(0)], classes[y]
         print(f'Predicted: "{predicted}", Actual: "{actual}"')
