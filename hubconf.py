@@ -6,26 +6,7 @@ from torchvision.transforms import ToTensor
 from torch.utils.data import DataLoader
 from torchmetrics import Precision, Accuracy, F1Score, Recall
 
-# Get cpu or gpu device for training.
-device = "cuda" if torch.cuda.is_available() else "cpu"
-print(f"Using {device} device")
-
-classes = [
-    "T-shirt/top",
-    "Trouser",
-    "Pullover",
-    "Dress",
-    "Coat",
-    "Sandal",
-    "Shirt",
-    "Sneaker",
-    "Bag",
-    "Ankle boot",
-]
-
 # Define model
-
-
 class NeuralNetwork(nn.Module):
   def __init__(self, config, s):
     super().__init__()
@@ -50,15 +31,20 @@ class NeuralNetwork(nn.Module):
       x = layer(x)
     return x
 
-#############################
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
 def loss_fn(y_pred, y_ground):
   v = -torch.mul(y_ground, torch.log(y_pred + 1e-4))
   v = v.sum()
   return v
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
 def get_lossfn_and_optimizer(mymodel):
   optimizer = torch.optim.SGD(mymodel.parameters(), lr=1e-3)
   return loss_fn, optimizer
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 def load_data():
   training_data = datasets.FashionMNIST(
@@ -75,39 +61,20 @@ def load_data():
   )
   return training_data, test_data
 
-#############################
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 def create_dataloaders(training_data, test_data, batch_size=64):
   train_dataloader = DataLoader(training_data, batch_size=batch_size)
   test_dataloader = DataLoader(test_data, batch_size=batch_size)
   return train_dataloader, test_dataloader
 
-#############################
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 def get_model(config, sample):
   model = NeuralNetwork(config, sample)
   return model
 
-# def _train(dataloader, model, loss_fn, optimizer):
-#     size = len(dataloader.dataset)
-#     model.train()
-#     for batch, (X, y) in enumerate(dataloader):
-#         X, y = X.to(device), y.to(device)
-
-#         # Compute prediction error
-#         pred = model(X)
-#         loss = loss_fn(pred, y)
-
-#         # Backpropagation
-#         optimizer.zero_grad()
-#         loss.backward()
-#         optimizer.step()
-
-#         if batch % 100 == 0:
-#             loss, current = loss.item(), batch * len(X)
-#             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 def train_network(train_dataloader, model, loss_fn, optimizer, epoch = 1):
   size = len(train_dataloader.dataset)
@@ -128,22 +95,7 @@ def train_network(train_dataloader, model, loss_fn, optimizer, epoch = 1):
         loss, current = loss.item(), cnt * len(X)
         print(f"loss: [{loss:>7f}] [{current:>5d}]/[{size:>5d}]")
 
-
-# def _test(dataloader, model, loss_fn):
-#     size = len(dataloader.dataset)
-#     num_batches = len(dataloader)
-#     model.eval()
-#     test_loss, correct = 0, 0
-#     with torch.no_grad():
-#         for X, y in dataloader:
-#             X, y = X.to(device), y.to(device)
-#             pred = model(X)
-#             test_loss += loss_fn(pred, y).item()
-#             correct += (pred.argmax(1) == y).type(torch.float).sum().item()
-#     test_loss /= num_batches
-#     correct /= size
-#     print(
-#         f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 def test_network(test_dataloader, model, loss_fn):
   accuracy = Accuracy()
@@ -173,6 +125,7 @@ def test_network(test_dataloader, model, loss_fn):
     print("*************************")
     return accuracy, precision,recall, f1score
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 def train(train_dataloader, test_dataloader, model1, loss_fn1, optimizer1, epochs=5):
     for t in range(epochs):
@@ -182,22 +135,15 @@ def train(train_dataloader, test_dataloader, model1, loss_fn1, optimizer1, epoch
     print("Done!")
     return model1
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
-def save_model(model1, mypath="model.pth"):
-    torch.save(model1.state_dict(), "model.pth")
-    print("Saved PyTorch Model State to model.pth")
-
-
-def load_model(mypath="model.pth"):
-    model = NeuralNetwork()
-    model.load_state_dict(torch.load("model.pth"))
-    return model
+# def save_model(model1, mypath="model.pth"):
+#     torch.save(model1.state_dict(), "model.pth")
+#     print("Saved PyTorch Model State to model.pth")
 
 
-def sample_test(model1, test_data):
-    model1.eval()
-    x, y = test_data[0][0], test_data[0][1]
-    with torch.no_grad():
-        pred = model1(x)
-        predicted, actual = classes[pred[0].argmax(0)], classes[y]
-        print(f'Predicted: "{predicted}", Actual: "{actual}"')
+# def load_model(mypath="model.pth"):
+#     model = NeuralNetwork()
+#     model.load_state_dict(torch.load("model.pth"))
+#     return model
+
