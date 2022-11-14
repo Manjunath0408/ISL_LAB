@@ -152,7 +152,7 @@ def test_network(test_dataloader, model, loss_fn):
   recall = Recall()
   model.eval()
   with torch.no_grad():
-    for X,y in train_dataloader:
+    for X,y in test_dataloader:
       y_pred = model(X)
       y_ground = torch.nn.functional.one_hot(torch.tensor(y, dtype = int), num_classes = 10)
       loss = loss_fn(y_pred, y_ground)
