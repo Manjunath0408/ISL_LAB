@@ -78,7 +78,7 @@ def get_model(config, sample):
 
 def train_network(train_dataloader, model, loss_fn, optimizer, epoch = 1):
   size = len(train_dataloader.dataset)
-  model.train()
+#   model.train()
   for e in range(epoch):
     cnt = 0
     for X,y in train_dataloader:
@@ -102,7 +102,7 @@ def test_network(test_dataloader, model, loss_fn):
   f1score = F1Score()
   precision = Precision()
   recall = Recall()
-  model.eval()
+#   model.eval()
   with torch.no_grad():
     for X,y in test_dataloader:
       y_pred = model(X)
@@ -128,12 +128,10 @@ def test_network(test_dataloader, model, loss_fn):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 def train(train_dataloader, test_dataloader, model1, loss_fn1, optimizer1, epochs=5):
-    for t in range(epochs):
-        print(f"Epoch {t+1}\n-------------------------------")
-        train_network(train_dataloader, model1, loss_fn1, optimizer1)
-        test_network(test_dataloader, model1, loss_fn1)
-    print("Done!")
-    return model1
+  train_network(train_dataloader, model1, loss_fn1, optimizer1, epochs)
+  test_network(test_dataloader, model1, loss_fn1)
+  print("Done!")
+  return model1
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
